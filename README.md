@@ -1,1 +1,1 @@
-# QuestionCollector
+Question Collectorin avulla käyttäjä lisää paikalliseen muistiin kysymyksen ja valitsee popup-ikkunasta kysymyksen aihepiirin. Paikalliseen muistiin tallentuu myös tallennuspäivämäärä. Käyttäjä voi hakea kaikki kysymykset tai tietyn aihepiirin kysymykset.
