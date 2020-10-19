@@ -1,0 +1,179 @@
+<HTML>
+<HEAD>
+	<meta charset='utf-8'>
+	<TITLE>
+		KYSYMYSTEN KERÄÄJÄ
+	</TITLE>
+	<STYLE>
+		
+		.modal 
+			{
+				display: none;
+				position: fixed;
+				z-index: 1;
+				left: 0;
+				top: 0;
+				width: 100%; /* Full width */
+				height: 100%; /* Full height */
+				overflow: auto; /* Enable scroll if needed */
+				background-color: rgb(0,0,0); /* Fallback color */
+				background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+			}
+		.modal-content 
+			{
+				background-color: #fefefe;
+				margin: 15% auto; /* 15% from the top and centered */
+				padding: 20px;
+				border: 1px solid #888;
+				width: 40%; /* Could be more or less, depending on screen size */
+			}
+	</STYLE>
+	<SCRIPT>
+	
+		function show_qBox()
+		{
+			//alert("Näytetään kysymysboksi");
+			var modal = document.getElementById("qBox");
+			var span = document.getElementsByClassName("close")[0];
+			modal.style.display = "block";
+		}
+		
+		function store_question()
+		{
+			//alert("Kysymyksesi tallennetaan");
+			var aika = new Date();
+			var paiva = aika.getDate();
+			
+			var kuukausi = aika.getMonth() + 1;
+			var vuosi = aika.getFullYear();
+			var pvm = paiva+"."+kuukausi+"."+vuosi;
+			//alert("Tänään on "+pvm);
+			
+			var q = document.getElementById("kysymys").value;
+			//alert("Kysymys on "+q);
+			
+			var lajielem = document.getElementById("laji");
+			var aiheind = lajielem.selectedIndex;
+			var valinnat = lajielem.options;
+			var aihe = valinnat[aiheind].text;
+			//alert("Aihe on "+aihe);
+			
+			var i = 0;
+			
+			//close_qBox();
+			
+			apumuuttuja = JSON.parse(localStorage.getItem("kysymysrivi"));
+			alert("Apumuuttuja on alustettu");
+			for (am in apumuuttuja) {i++;}
+			kysymysrivi = new Object();
+			alert("Kysymysriviobjekti luotu");
+			if (i>0)
+			{   
+				kysymysrivi = JSON.parse(localStorage.getItem("kysymysrivi"));
+				//alert("Sijoitus tehty kysymysriviobjektiin");
+			}
+			else alert("Kysymysriviobjektiin ei sijoitettu");
+			var tunnus = (pvm +" "+ q +" "+aihe);
+			alert("Tunnus on "+tunnus);
+			try
+				{
+					kysymysrivi[tunnus] = {aika:pvm,kysymys:q,laji:aihe}; //tähän pvm?
+					alert("Uuden kysymyksen luonti onnistui");
+				}
+			catch(err)
+				{alert("Uuden kysymyksen luonti ei onnistunut");}
+			try
+				{
+					localStorage.setItem("kysymysrivi",JSON.stringify(kysymysrivi));
+					alert("Kysymysrivi tallennettiin");
+				}
+			catch(err)
+				{alert("Uuden kysymyksen tallennus ei onnistunut");}
+			close_qBox();
+		}
+		
+		function close_qBox()
+		{
+			var b = document.getElementById("qBox");
+			qBox.style.display="none";
+		}
+		
+		function begin_searching()
+		{
+			var tyyppielem = document.getElementById("tyyppi");
+			var t_ind = tyyppielem.selectedIndex;
+			var valinnat = tyyppielem.options;
+			var tyyppi = valinnat[t_ind].text;
+			search_questions(tyyppi);
+		}
+		
+		function lisavali(l)
+		{
+			if(l=="JS")
+				return("   ");
+			else if(l=="CSS")
+				return("  ");
+			else return(" ");
+		}
+		
+		function search_questions(t)
+		{
+			//alert("Haetaan tallennetut kysymykset. Tyyppi on "+t);
+			
+			var teksti = " ";
+			var lv = " ";
+			var l = " ";
+			var i=0;//kaikki rivit
+			var r=0;//tulosrivit
+			kysymysrivi = JSON.parse(localStorage.getItem("kysymysrivi"));
+			teksti += ("Aika               Aihe		    Kysymys "+'\n');
+			teksti += ("--------------------------------------------------------------------------------"+'\n'+'\n');
+			for (kys in kysymysrivi) 
+			{
+				k = kysymysrivi[kys];
+				l = k.laji;
+				i++;
+				if((t=="Kaikki")||(l==t))
+				{
+					lv = lisavali(l); 
+					teksti += (k.aika+"          "+k.laji+"                   "+lv+k.kysymys+'\n');
+					r++;
+				}
+			}
+			teksti += ('\n'+"Kysymyksiä löytyi "+r);
+			document.lomake.questions.value = teksti;
+		}
+		
+	</SCRIPT>
+</HEAD>
+<BODY onload="begin_searching()">
+	<FORM name="lomake" onSubmit="return false">
+		<br>
+		<button id="qBoxButton" onclick="show_qBox()">Lisää kysymys</button><br><br>
+		<button id="searchButton" onclick="begin_searching()">Hae kysymykset</button> <br><br>  
+		<select id="tyyppi">
+			<option value="all">Kaikki</option>
+			<option value="html">HTML</option>
+			<option value="css">CSS</option>
+			<option value="js">JS</option>
+		</select>
+		<br><br><br>
+		<textarea name="questions" rows="28" cols="80"></textarea>
+		
+	</FORM>
+	<DIV id="qBox" class="modal">
+		<DIV id="qBoxContent" class="modal-content">			
+			<span class="close">&times;</span>
+			Kysymys gurulle <input type="text" id="kysymys"><br><br>
+			Kysymyksen laji
+			<select id="laji">
+				<option value="html">HTML</option>
+				<option value="css">CSS</option>
+				<option value="js">JS</option>
+			</select>
+			<br><br>
+			<button onclick="store_question()";>OK</button>      <button onclick="close_qBox()";>PERUUTA</button>
+		</DIV>
+	</DIV>
+</BODY>
+</HTML>
